@@ -4,18 +4,19 @@ using UnityEngine;
 
 public class DefaultRandom : RandomNumberProviderBase
 {
-    void Start()
+    public override void InitRandom()
     {
-        Random.InitState((int)System.DateTime.Now.Ticks);
+        UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
     }
 
     public override int GetRandomInt(int min, int max)
     {
-        return Random.Range(min, max);
+        return UnityEngine.Random.Range(min, max + 1);
     }
 
     public override float GetRandomFloat(float min, float max)
     {
-        return Mathf.FloorToInt(Random.Range(min, max));
+        //return Mathf.FloorToInt(UnityEngine.Random.Range(min, max));
+        return UnityEngine.Random.Range(min, max);
     }
 }

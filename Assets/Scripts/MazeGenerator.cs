@@ -30,6 +30,9 @@ public static class MazeGenerator
 
     public static Walls[,] GenerateMaze(Vector2Int mazeSize, Vector2Int startingPosition)
     {
+        randomNumberProvider.InitRandom();
+
+
         Walls[,] walls = new Walls[mazeSize.x, mazeSize.y];
 
         var fourWalls = Walls.UP | Walls.DOWN | Walls.LEFT | Walls.RIGHT;
