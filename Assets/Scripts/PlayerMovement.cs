@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
 
     public Rigidbody2D rb;
 
-    Vector2 movement;
+    Vector3 movement;
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rb == null)
             return;
-
-        rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
+        transform.Translate(movement * movementSpeed * Time.fixedDeltaTime);
+        //rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
     }
 }
