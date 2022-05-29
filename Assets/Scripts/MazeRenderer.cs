@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-enum Random
+enum RandomEnum
 {
     Default,
 
@@ -13,7 +13,7 @@ public class MazeRenderer : MonoBehaviour
 {
     [SerializeField] private Transform player;
 
-    [SerializeField] private Random randomNumberProvider;
+    [SerializeField] private RandomEnum randomNumberProvider;
 
     [SerializeField] private Vector2Int mazeSize = new Vector2Int(10, 10);
     [SerializeField] private float cellSize = 1f;
@@ -26,7 +26,7 @@ public class MazeRenderer : MonoBehaviour
     {
         switch(randomNumberProvider)
         {
-            case Random.Default:
+            case RandomEnum.Default:
                 return new DefaultRandom();
         }
         return new DefaultRandom();
