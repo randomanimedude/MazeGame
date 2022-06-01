@@ -8,19 +8,20 @@ enum RandomEnum
 
 }
 
-
 public class MazeRenderer : MonoBehaviour
 {
     [SerializeField] private Transform player;
 
     [SerializeField] private RandomEnum randomNumberProvider;
 
-    [SerializeField] private Vector2Int mazeSize = new Vector2Int(10, 10);
     [SerializeField] private float cellSize = 1f;
 
     [SerializeField] private Transform wallPrefab = null;
 
     [SerializeField] private Transform holePrefab = null;
+
+    private GameDataStorage levelData;
+    private RandomNumberProviderBase rngProvider;
 
     private RandomNumberProviderBase GetRandomNumberProvider()
     {
@@ -32,10 +33,25 @@ public class MazeRenderer : MonoBehaviour
         return new DefaultRandom();
     }
 
+    private void CreateRandomNumberProvider()
+    {
+        switch (randomNumberProvider)
+        {
+            case RandomEnum.Default:
+                rngProvider = new DefaultRandom();
+                return;
+        }
+        rngProvider = new DefaultRandom();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        CreateRandomNumberProvider();
+
         MazeGenerator.SetRNGProvider(GetRandomNumberProvider());
+
+        levelData = GameDataStorage.Instance;
 
         CreateNewMaze();
     }
@@ -44,8 +60,10 @@ public class MazeRenderer : MonoBehaviour
     {
         DeleteOldMaze();
 
-        var startingPosition = new Vector2Int(0, 0);
-        var maze = MazeGenerator.GenerateMaze(mazeSize, startingPosition);
+        
+        var startingPosition = new Vector2Int(rngProvider.GetRandomInt(0, levelData.mazeSize.x - 1), rngProvider.GetRandomInt(0, levelData.mazeSize.y - 1));
+        var maze = MazeGenerator.GenerateMaze(levelData.mazeSize, startingPosition);
+
         if (player != null)
             player.position = LogicToWorld(startingPosition);
 
@@ -102,18 +120,18 @@ public class MazeRenderer : MonoBehaviour
 
     private Vector2 LogicToWorld(Vector2Int pos)
     {
-        var position = new Vector3(-mazeSize.x / 2 + pos.x, -mazeSize.y / 2 + pos.y, 0) + new Vector3(0, cellSize / 2, 0);
+        var position = new Vector3(-levelData.mazeSize.x / 2 + pos.x, -levelData.mazeSize.y / 2 + pos.y, 0) + new Vector3(0, cellSize / 2, 0);
         return position;
     }
 
     private void Draw(Walls[,] maze)
     {
-        for (int i = 0; i < mazeSize.x; ++i)
+        for (int i = 0; i < levelData.mazeSize.x; ++i)
         {
-            for (int j = 0; j < mazeSize.y; ++j)
+            for (int j = 0; j < levelData.mazeSize.y; ++j)
             {
                 var cell = maze[i, j];
-                var position = new Vector3(-mazeSize.x / 2 + i, -mazeSize.y / 2 + j, 0);
+                var position = new Vector3(-levelData.mazeSize.x / 2 + i, -levelData.mazeSize.y / 2 + j, 0);
 
                 if(cell.HasFlag(Walls.UP))
                 {
@@ -138,7 +156,7 @@ public class MazeRenderer : MonoBehaviour
                         down.transform.localScale = new Vector3(cellSize, down.transform.localScale.y, down.transform.localScale.z);
                     }
                 }
-                if (i == mazeSize.x - 1)
+                if (i == levelData.mazeSize.x - 1)
                 {
                     if (cell.HasFlag(Walls.RIGHT))
                     {
