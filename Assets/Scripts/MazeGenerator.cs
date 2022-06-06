@@ -30,7 +30,7 @@ public static class MazeGenerator
 
     public static Walls[,] GenerateMaze(Vector2Int mazeSize, Vector2Int startingPosition)
     {
-        randomNumberProvider.InitRandom();
+        randomNumberProvider.InitRandom(mazeSize);
 
 
         Walls[,] walls = new Walls[mazeSize.x, mazeSize.y];
@@ -68,17 +68,17 @@ public static class MazeGenerator
                             possibleNeighbours.Add(direction);
                             return;
                         }
-                        if (direction == directionDown)
+                        else if (direction == directionDown)
                         {
                             possibleNeighbours.Add(direction);
                             return;
                         }
-                        if (direction == directionLeft)
+                        else if (direction == directionLeft)
                         {
                             possibleNeighbours.Add(direction);
                             return;
                         }
-                        if (direction == directionRight)
+                        else if (direction == directionRight)
                         {
                             possibleNeighbours.Add(direction);
                             return;
@@ -90,24 +90,24 @@ public static class MazeGenerator
 
             if (possibleNeighbours.Count > 0)
             {
-                var direction = possibleNeighbours[randomNumberProvider.GetRandomInt(0, possibleNeighbours.Count - 1)];
+                var direction = possibleNeighbours[randomNumberProvider.GetRandomIntAtPos(0, possibleNeighbours.Count - 1, currentCell.x, currentCell.y)];
                 var neighbour = currentCell + direction;
                 if (direction == directionTop)
                 {
                     walls[currentCell.x,currentCell.y] ^= Walls.UP;
                     walls[neighbour.x, neighbour.y] ^= Walls.DOWN;
                 }
-                if (direction == directionDown)
+                else if (direction == directionDown)
                 {
                     walls[currentCell.x, currentCell.y] ^= Walls.DOWN;
                     walls[neighbour.x, neighbour.y] ^= Walls.UP;
                 }
-                if (direction == directionLeft)
+                else if (direction == directionLeft)
                 {
                     walls[currentCell.x, currentCell.y] ^= Walls.LEFT;
                     walls[neighbour.x, neighbour.y] ^= Walls.RIGHT;
                 }
-                if (direction == directionRight)
+                else if (direction == directionRight)
                 {
                     walls[currentCell.x, currentCell.y] ^= Walls.RIGHT;
                     walls[neighbour.x, neighbour.y] ^= Walls.LEFT;

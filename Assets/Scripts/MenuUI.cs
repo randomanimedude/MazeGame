@@ -37,6 +37,14 @@ public class MenuUI : MonoBehaviour
         LoadLevel();
     }
 
+    public void StartImpossible()
+    {
+        levelData.mazeSize = new Vector2Int(200, 200);
+        levelData.totalNumberOfLevels = 3;
+        levelData.currentLevelNumber = 1;
+        LoadLevel();
+    }
+
     public void LoadLevel()
     {
         SceneManager.LoadScene(coreGameSceneName);

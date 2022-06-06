@@ -5,6 +5,7 @@ using UnityEngine;
 enum RandomEnum
 {
     Default,
+    Perlin,
 
 }
 
@@ -29,6 +30,8 @@ public class MazeRenderer : MonoBehaviour
         {
             case RandomEnum.Default:
                 return new DefaultRandom();
+            case RandomEnum.Perlin:
+                return new PerlinNoiseRandom();
         }
         return new DefaultRandom();
     }
@@ -61,7 +64,7 @@ public class MazeRenderer : MonoBehaviour
         DeleteOldMaze();
 
         
-        var startingPosition = new Vector2Int(rngProvider.GetRandomInt(0, levelData.mazeSize.x - 1), rngProvider.GetRandomInt(0, levelData.mazeSize.y - 1));
+        var startingPosition = new Vector2Int(rngProvider.GetRandomIntAtPos(0, levelData.mazeSize.x - 1, 0, 0), rngProvider.GetRandomIntAtPos(0, levelData.mazeSize.y - 1, 0, 0));
         var maze = MazeGenerator.GenerateMaze(levelData.mazeSize, startingPosition);
 
         if (player != null)

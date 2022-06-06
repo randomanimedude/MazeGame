@@ -218,8 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1512739400}
-  randomNumberProvider: 0
-  mazeSize: {x: 10, y: 10}
+  randomNumberProvider: 1
   cellSize: 1
   wallPrefab: {fileID: 4360151279710253673, guid: 1a40a1cf39b8ed547b008151d23027a8, type: 3}
   holePrefab: {fileID: 6786819494467892326, guid: a5cdeb34954963741be506ff2c7d76c1, type: 3}

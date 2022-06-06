@@ -4,9 +4,17 @@ public class PerlinNoise : MonoBehaviour
 {
     public Vector2Int size = new Vector2Int(256, 256);
 
-    public float scale = 20f;
+    //public float scale = 20f;
 
-    public Vector2 offset = new Vector2();
+    //public Vector2 offset = new Vector2();
+
+    PerlinNoiseRandom random = new PerlinNoiseRandom();
+
+    private void Start()
+    {
+        random.InitRandom(size);
+    }
+
     private void Update()
     {
         Renderer renderer = GetComponent<Renderer>();
@@ -32,10 +40,12 @@ public class PerlinNoise : MonoBehaviour
 
     Color CalculateColor(int x, int y)
     {
-        float xPerlin = (float)x / size.x * scale + offset.x;
-        float yPerlin = (float)y / size.y * scale + offset.y; 
+        //float xPerlin = (float)x / size.x * scale + offset.x;
+        //float yPerlin = (float)y / size.y * scale + offset.y; 
 
-        float perlinData = Mathf.PerlinNoise(xPerlin, yPerlin);
+        //float perlinData = Mathf.PerlinNoise(xPerlin, yPerlin);
+
+        float perlinData = random.GetRandomFloatAtPos(0, 1, x, y);
         return new Color(perlinData, perlinData, perlinData);
     }
 }
