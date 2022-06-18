@@ -28,6 +28,5 @@ public class PlayerMovement : MonoBehaviour
         if (rb == null)
             return;
         transform.Translate(movement * movementSpeed * Time.fixedDeltaTime);
-        //rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
     }
 }

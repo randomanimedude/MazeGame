@@ -75,7 +75,6 @@ public class MazeRenderer : MonoBehaviour
             var finishPosition = GetRandomFinishPosition(maze, startingPosition);
             var hole = Instantiate(holePrefab, transform);
             hole.transform.position = LogicToWorld(finishPosition);
-            //hole.transform.position = LogicToWorld(new Vector2Int(1, 0));
             hole.GetComponentInChildren<Hole>().SetMazeRenderer(this);
         }
 
@@ -150,7 +149,7 @@ public class MazeRenderer : MonoBehaviour
                     left.transform.localScale = new Vector3(cellSize, left.transform.localScale.y, left.transform.localScale.z);
                 }
 
-                if (j ==/* mazeSize.y - 1*/0)
+                if (j == 0)
                 {
                     if (cell.HasFlag(Walls.DOWN))
                     {
@@ -172,11 +171,5 @@ public class MazeRenderer : MonoBehaviour
                
             }
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
