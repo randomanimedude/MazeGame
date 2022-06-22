@@ -39,7 +39,7 @@ public class MenuUI : MonoBehaviour
 
     public void StartImpossible()
     {
-        levelData.mazeSize = new Vector2Int(200, 200);
+        levelData.mazeSize = new Vector2Int(100, 100);
         levelData.totalNumberOfLevels = 3;
         levelData.currentLevelNumber = 1;
         LoadLevel();
