@@ -15,8 +15,8 @@ public class PerlinNoiseRandom : DefaultRandom
     {
         UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
         this.size = size;
-        //offset.x = UnityEngine.Random.Range(0, size.x);
-        //offset.y = UnityEngine.Random.Range(0, size.y);
+        offset.x = UnityEngine.Random.Range(0, size.x * scale);
+        offset.y = UnityEngine.Random.Range(0, size.y * scale);
     }
 
     public override int GetRandomIntAtPos(int min, int max, int x, int y)
