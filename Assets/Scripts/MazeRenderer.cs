@@ -6,7 +6,7 @@ enum RandomEnum
 {
     Default,
     Perlin,
-
+    Wevelet,
 }
 
 public class MazeRenderer : MonoBehaviour
@@ -32,6 +32,8 @@ public class MazeRenderer : MonoBehaviour
                 return new DefaultRandom();
             case RandomEnum.Perlin:
                 return new PerlinNoiseRandom();
+            case RandomEnum.Wevelet:
+                return new WeveletNoiseRandom();
         }
         return new DefaultRandom();
     }

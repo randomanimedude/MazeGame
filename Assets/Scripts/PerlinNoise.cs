@@ -1,3 +1,5 @@
+using System;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class PerlinNoise : MonoBehaviour
@@ -8,10 +10,16 @@ public class PerlinNoise : MonoBehaviour
 
     //public Vector2 offset = new Vector2();
 
-    PerlinNoiseRandom random = new PerlinNoiseRandom();
+    RandomNumberProviderBase random;
+
+    public virtual RandomNumberProviderBase GetRandomImpl()
+    {
+        return new PerlinNoiseRandom();
+    }
 
     private void Start()
     {
+        random = GetRandomImpl();
         random.InitRandom(size);
     }
 
