@@ -37,8 +37,8 @@ public class WeveletNoiseRandom : DefaultRandom
         for (int i = 0; i < n / 2; i++)
         {
             to[i * stride] = 0;
-            for (int k = 2 * i - ARAD; k <= 2 * i + ARAD; k++)
-                to[i * stride] += a[k - 2 * i] * from[Mod(k, n) * stride];
+            for (int k = 2 * i - ARAD; k <= 2 * i + ARAD - 1; k++)
+                to[i * stride] += a[k - 2 * i + ARAD] * from[Mod(k, n) * stride];
         }
     }
 
@@ -53,7 +53,7 @@ public class WeveletNoiseRandom : DefaultRandom
         {
             to[i * stride] = 0;
             for (int k = i / 2; k <= i / 2 + 1; k++)
-                to[i * stride] += p[i - 2 * k] * from[Mod(k, n / 2) * stride];
+                to[i * stride] += p[i - 2 * k + 2] * from[Mod(k, n / 2) * stride];
         }
     }
 
@@ -79,7 +79,7 @@ public class WeveletNoiseRandom : DefaultRandom
     {
         if (n % 2 != 0) n++; // Tile size must be even
 
-        int ix, iy, iz, i, sz = n * n * n;
+        int ix, iy, i, sz = n * n;
         float[] temp1 = new float[sz];
         float[] temp2 = new float[sz];
         
@@ -96,34 +96,21 @@ public class WeveletNoiseRandom : DefaultRandom
 
         // Steps 2 and 3. Downsample and upsample the tile
         for (iy = 0; iy < n; iy++)
-            for (iz = 0; iz < n; iz++)
-            {
-                // Each x row
-                i = iy * n + iz * n * n;
-                Downsample(noise, temp1, n, 1);
-                Upsample(temp1, temp2, n, 1);
-            }
+        {
+            // Each x row
+            Downsample(noise, temp1, n, 1);
+            Upsample(temp1, temp2, n, 1);
+        }
 
         for (ix = 0; ix < n; ix++)
-            for (iz = 0; iz < n; iz++)
-            {
-                // Each y row
-                i = ix + iz * n * n;
-                Downsample(temp2, temp1, n, n);
-                Upsample(temp1, temp2, n, n);
-            }
-
-        for (ix = 0; ix < n; ix++)
-            for (iy = 0; iy < n; iy++)
-            {
-                // Each z row
-                i = ix + iy * n;
-                Downsample(temp2, temp1, n, n * n);
-                Upsample(temp1, temp2, n, n * n);
-            }
+        {
+            // Each y row
+            Downsample(temp2, temp1, n, n);
+            Upsample(temp1, temp2, n, n);
+        }
 
         // Step 4. Subtract out the coarse-scale contribution
-        for (i = 0; i < n * n * n; i++)
+        for (i = 0; i < n * n; i++)
         {
             noise[i] -= temp2[i];
         }
@@ -134,10 +121,9 @@ public class WeveletNoiseRandom : DefaultRandom
 
         for (i = 0, ix = 0; ix < n; ix++)
             for (iy = 0; iy < n; iy++)
-                for (iz = 0; iz < n; iz++)
-                    temp1[i++] = noise[Mod(ix + offset, n) + Mod(iy + offset, n) * n + Mod(iz + offset, n) * n * n];
+                temp1[i++] = noise[Mod(ix + offset, n) + Mod(iy + offset, n) * n];
 
-        for (i = 0; i < n * n * n; i++)
+        for (i = 0; i < n * n; i++)
         {
             noise[i] += temp1[i];
         }
