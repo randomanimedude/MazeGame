@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 enum RandomEnum
@@ -23,6 +25,7 @@ public class MazeRenderer : MonoBehaviour
 
     private GameDataStorage levelData;
     private RandomNumberProviderBase rngProvider;
+    private List<Vector2Int> path;
 
     private RandomNumberProviderBase GetRandomNumberProvider()
     {
@@ -72,15 +75,33 @@ public class MazeRenderer : MonoBehaviour
         if (player != null)
             player.position = LogicToWorld(startingPosition);
 
+        var finishPosition = GetRandomFinishPosition(maze, startingPosition);
         if (holePrefab != null)
         {
-            var finishPosition = GetRandomFinishPosition(maze, startingPosition);
             var hole = Instantiate(holePrefab, transform);
             hole.transform.position = LogicToWorld(finishPosition);
             hole.GetComponentInChildren<Hole>().SetMazeRenderer(this);
         }
 
+        var solver = new BFSMazeSolver();
+        path = solver.SolveMaze(maze, startingPosition, finishPosition);
+
+        StartCoroutine(RepeatActionWithDelay());
+
         Draw(maze);
+    }
+    private IEnumerator RepeatActionWithDelay()
+    {
+        while (path.Count > 0)
+        {
+            player.position = LogicToWorld(path.First());
+            path.RemoveAt(0);
+
+            if(path.Count > 0)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
     }
 
     private void DeleteOldMaze()
