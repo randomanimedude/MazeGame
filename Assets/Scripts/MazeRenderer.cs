@@ -83,7 +83,7 @@ public class MazeRenderer : MonoBehaviour
             hole.GetComponentInChildren<Hole>().SetMazeRenderer(this);
         }
 
-        var solver = new BFSMazeSolver();
+        var solver = new AStarMazeSolver();
         path = solver.SolveMaze(maze, startingPosition, finishPosition);
 
         StartCoroutine(RepeatActionWithDelay());
