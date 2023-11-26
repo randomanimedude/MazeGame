@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class DijkstraMazeSolver : MazeSolverBase
 {
-    private Walls[,] maze;
-
     public override List<Vector2Int> SolveMaze(Walls[,] mazeArg, Vector2Int start, Vector2Int end)
     {
         maze = mazeArg;

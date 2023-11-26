@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class MazeSolverBase
 {
-    private Walls[,] maze;
+    protected Walls[,] maze;
 
     abstract public List<Vector2Int> SolveMaze(Walls[,] mazeArg, Vector2Int start, Vector2Int end);
 
