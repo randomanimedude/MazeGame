@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Breadth-First Search
+// Depth-First Search
 public class DFSMazeSolver : BFSMazeSolver
 {
     public override List<Vector2Int> SolveMaze(Walls[,] mazeArg, Vector2Int start, Vector2Int end)
