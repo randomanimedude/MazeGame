@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 enum RandomEnum
 {
@@ -22,6 +23,9 @@ public class MazeRenderer : MonoBehaviour
     [SerializeField] private Transform wallPrefab = null;
 
     [SerializeField] private Transform holePrefab = null;
+
+    [SerializeField] private bool isFakeMaze = false;
+    private Vector2Int fakeMazeSize = new Vector2Int(64, 64);
 
     private GameDataStorage levelData;
     private RandomNumberProviderBase rngProvider;
@@ -68,25 +72,29 @@ public class MazeRenderer : MonoBehaviour
     {
         DeleteOldMaze();
 
-        
-        var startingPosition = new Vector2Int(rngProvider.GetRandomIntAtPos(0, levelData.mazeSize.x - 1, 0, 0), rngProvider.GetRandomIntAtPos(0, levelData.mazeSize.y - 1, 0, 0));
-        var maze = MazeGenerator.GenerateMaze(levelData.mazeSize, startingPosition);
+        var mazeSize = isFakeMaze ? fakeMazeSize : levelData.mazeSize;
 
-        if (player != null)
-            player.position = LogicToWorld(startingPosition);
+        var startingPosition = new Vector2Int(rngProvider.GetRandomIntAtPos(0, mazeSize.x - 1, 0, 0), rngProvider.GetRandomIntAtPos(0, mazeSize.y - 1, 0, 0));
+        var maze = MazeGenerator.GenerateMaze(mazeSize, startingPosition);
 
-        var finishPosition = GetRandomFinishPosition(maze, startingPosition);
-        if (holePrefab != null)
+        if (!isFakeMaze)
         {
-            var hole = Instantiate(holePrefab, transform);
-            hole.transform.position = LogicToWorld(finishPosition);
-            hole.GetComponentInChildren<Hole>().SetMazeRenderer(this);
+            if (player != null)
+                player.position = LogicToWorld(startingPosition);
+
+            var finishPosition = GetRandomFinishPosition(maze, startingPosition);
+            if (holePrefab != null)
+            {
+                var hole = Instantiate(holePrefab, transform);
+                hole.transform.position = LogicToWorld(finishPosition);
+                hole.GetComponentInChildren<Hole>().SetMazeRenderer(this);
+            }
+
+            var solver = new AStarMazeSolver();
+            path = solver.SolveMaze(maze, startingPosition, finishPosition);
+
+            StartCoroutine(RepeatActionWithDelay());
         }
-
-        var solver = new AStarMazeSolver();
-        path = solver.SolveMaze(maze, startingPosition, finishPosition);
-
-        StartCoroutine(RepeatActionWithDelay());
 
         Draw(maze);
     }
@@ -145,53 +153,59 @@ public class MazeRenderer : MonoBehaviour
 
     private Vector2 LogicToWorld(Vector2Int pos)
     {
-        var position = new Vector3(-levelData.mazeSize.x / 2 + pos.x, -levelData.mazeSize.y / 2 + pos.y, 0) + new Vector3(0, cellSize / 2, 0);
+        var mazeSize = isFakeMaze ? fakeMazeSize : levelData.mazeSize;
+        var position = new Vector3(-Mathf.FloorToInt(mazeSize.x * 0.5f) + pos.x, -Mathf.FloorToInt(mazeSize.y * 0.5f) + pos.y, 0) + new Vector3(0, cellSize * 0.5f, 0);
         return position;
     }
-
     private void Draw(Walls[,] maze)
     {
-        for (int i = 0; i < levelData.mazeSize.x; ++i)
+        var mazeSize = isFakeMaze ? fakeMazeSize : levelData.mazeSize;
+
+        var halfCellSize = cellSize * 0.5f;
+        var halfMazeSizeX = Mathf.FloorToInt(mazeSize.x * 0.5f);
+        var halfMazeSizeY = Mathf.FloorToInt(mazeSize.y * 0.5f);
+        for (int i = 0; i < mazeSize.x; ++i)
         {
-            for (int j = 0; j < levelData.mazeSize.y; ++j)
+            {
+                var cell = maze[i, 0];
+                var position = new Vector3(-halfMazeSizeX + i, -halfMazeSizeY, 0);
+                if (cell.HasFlag(Walls.DOWN))
+                {
+                    var down = Instantiate(wallPrefab, transform);
+                    down.transform.position = position + new Vector3(0, -halfCellSize, 0);
+                    down.transform.localScale = new Vector3(cellSize, down.transform.localScale.y, down.transform.localScale.z);
+                }
+            }
+            
+            for (int j = 0; j < mazeSize.y; ++j)
             {
                 var cell = maze[i, j];
-                var position = new Vector3(-levelData.mazeSize.x / 2 + i, -levelData.mazeSize.y / 2 + j, 0);
+                var position = new Vector3(-halfMazeSizeX + i, -halfMazeSizeY + j, 0);
 
                 if(cell.HasFlag(Walls.UP))
                 {
                     var top = Instantiate(wallPrefab, transform);
-                    top.transform.position = position + new Vector3(0, cellSize / 2, 0);
+                    top.transform.position = position + new Vector3(0, halfCellSize, 0);
                     top.transform.localScale = new Vector3(cellSize, top.transform.localScale.y, top.transform.localScale.z);
                 }
                 if(cell.HasFlag(Walls.LEFT))
                 {
                     var left = Instantiate(wallPrefab, transform);
-                    left.transform.position = position + new Vector3(-cellSize / 2, 0, 0);
+                    left.transform.position = position + new Vector3(-halfCellSize, 0, 0);
                     left.transform.eulerAngles = new Vector3(0, 0, 90);
                     left.transform.localScale = new Vector3(cellSize, left.transform.localScale.y, left.transform.localScale.z);
                 }
 
-                if (j == 0)
-                {
-                    if (cell.HasFlag(Walls.DOWN))
-                    {
-                        var down = Instantiate(wallPrefab, transform);
-                        down.transform.position = position + new Vector3(0, -cellSize / 2, 0);
-                        down.transform.localScale = new Vector3(cellSize, down.transform.localScale.y, down.transform.localScale.z);
-                    }
-                }
-                if (i == levelData.mazeSize.x - 1)
+                if (i == mazeSize.x - 1)
                 {
                     if (cell.HasFlag(Walls.RIGHT))
                     {
                         var right = Instantiate(wallPrefab, transform);
-                        right.transform.position = position + new Vector3(+cellSize / 2, 0, 0);
+                        right.transform.position = position + new Vector3(halfCellSize, 0, 0);
                         right.transform.eulerAngles = new Vector3(0, 0, 90);
                         right.transform.localScale = new Vector3(cellSize, right.transform.localScale.y, right.transform.localScale.z);
                     }
                 }
-               
             }
         }
     }
