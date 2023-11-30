@@ -60,7 +60,6 @@ public class AStarMazeSolver : MazeSolverBase
         Dictionary<Vector2Int, float> fScores = new Dictionary<Vector2Int, float>();
         Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
 
-        // Initialize gScores and fScores with default values
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -89,7 +88,7 @@ public class AStarMazeSolver : MazeSolverBase
 
             foreach (Vector2Int neighbor in neighbors)
             {
-                float tentativeGScore = gScores[current] + 1; // Assuming uniform edge weight of 1
+                float tentativeGScore = gScores[current] + 1;
 
                 if (tentativeGScore < gScores[neighbor])
                 {
@@ -123,7 +122,6 @@ public class AStarMazeSolver : MazeSolverBase
         return path;
     }
 
-    // Helper function to calculate the heuristic cost estimate (Euclidean distance)
     private float HeuristicCostEstimate(Vector2Int start, Vector2Int end)
     {
         return Vector2Int.Distance(start, end);
