@@ -40,7 +40,7 @@ public class MazeRenderer : MonoBehaviour
             case RandomEnum.Perlin:
                 return new PerlinNoiseRandom();
             case RandomEnum.Wevelet:
-                return new WeveletNoiseRandom();
+                return new WaveletNoiseRandom();
         }
         return new DefaultRandom();
     }

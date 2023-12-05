@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeveletNoiseRandom : DefaultRandom
+public class WaveletNoiseRandom : DefaultRandom
 {
     public Vector2Int size = new Vector2Int(256, 256);
 

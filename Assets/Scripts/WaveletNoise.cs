@@ -4,6 +4,6 @@ public class WaveletNoise : PerlinNoise
 {
     public override RandomNumberProviderBase GetRandomImpl()
     {
-        return new WeveletNoiseRandom();
+        return new WaveletNoiseRandom();
     }
 }
