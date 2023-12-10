@@ -181,8 +181,7 @@ public class WaveletNoiseRandom : DefaultRandom
         // depth is Z axis, changing it will allow configuring slice depth
         int depth = 0;
         int index = Math.Clamp(x + y * size.x + depth * size.x * size.y, 0, noiseTileData.Length - 1);
-        var wavelet = noiseTileData[index];
-
+        var wavelet = (noiseTileData[index] + 1.0f) * 0.5f; // turning [-1; 1] into [0;1]
 
         return Math.Clamp(min + wavelet * (max - min), min, max);
     }
