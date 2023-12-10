@@ -60,16 +60,26 @@ public class WaveletNoiseRandom : DefaultRandom
     static float[] GenerateGaussianNoise(int size, float mean, float stdDev)
     {
         float[] noise = new float[size];
+        float minVal = float.MaxValue;
+        float maxVal = float.MinValue;
 
+        // Generate noise and find min and max values
         for (int i = 0; i < size; i++)
         {
-            float u1 = 1.0f - UnityEngine.Random.value; // Using Unity's Random class to get values between 0 and 1
+            float u1 = 1.0f - UnityEngine.Random.value; // Ensure u1 is in the range (0, 1] to avoid log(0)
             float u2 = 1.0f - UnityEngine.Random.value;
 
-            float randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) * Mathf.Sin(2.0f * Mathf.PI * u2);
-
-            // Scale and shift the random value to the desired mean and standard deviation
+            float randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) * Mathf.Sin(2.0f * Mathf.PI * u2); // Box-Muller transform
             noise[i] = mean + stdDev * randStdNormal;
+
+            if (noise[i] < minVal) minVal = noise[i];
+            if (noise[i] > maxVal) maxVal = noise[i];
+        }
+
+        // Normalize noise to range [-1, 1]
+        for (int i = 0; i < size; i++)
+        {
+            noise[i] = (noise[i] - minVal) / (maxVal - minVal) * 2.0f - 1.0f;
         }
 
         return noise;
@@ -79,7 +89,7 @@ public class WaveletNoiseRandom : DefaultRandom
     {
         if (n % 2 != 0) n++; // Tile size must be even
 
-        int ix, iy, i, sz = n * n;
+        int ix, iy, iz, i, sz = n * n * n;
         float[] temp1 = new float[sz];
         float[] temp2 = new float[sz];
         
@@ -96,21 +106,34 @@ public class WaveletNoiseRandom : DefaultRandom
 
         // Steps 2 and 3. Downsample and upsample the tile
         for (iy = 0; iy < n; iy++)
-        {
-            // Each x row
-            Downsample(noise, temp1, n, 1);
-            Upsample(temp1, temp2, n, 1);
-        }
+            for (iz = 0; iz < n; iz++)
+            {
+                // Each x row
+                i = iy * n + iz * n * n;
+                Downsample(noise, temp1, n, 1);
+                Upsample(temp1, temp2, n, 1);
+            }
 
         for (ix = 0; ix < n; ix++)
-        {
-            // Each y row
-            Downsample(temp2, temp1, n, n);
-            Upsample(temp1, temp2, n, n);
-        }
+            for (iz = 0; iz < n; iz++)
+            {
+                // Each y row
+                i = ix + iz * n * n;
+                Downsample(temp2, temp1, n, n);
+                Upsample(temp1, temp2, n, n);
+            }
+
+        for (ix = 0; ix < n; ix++)
+            for (iy = 0; iy < n; iy++)
+            {
+                // Each z row
+                i = ix + iy * n;
+                Downsample(temp2, temp1, n, n * n);
+                Upsample(temp1, temp2, n, n * n);
+            }
 
         // Step 4. Subtract out the coarse-scale contribution
-        for (i = 0; i < n * n; i++)
+        for (i = 0; i < sz; i++)
         {
             noise[i] -= temp2[i];
         }
@@ -121,9 +144,10 @@ public class WaveletNoiseRandom : DefaultRandom
 
         for (i = 0, ix = 0; ix < n; ix++)
             for (iy = 0; iy < n; iy++)
-                temp1[i++] = noise[Mod(ix + offset, n) + Mod(iy + offset, n) * n];
+                for (iz = 0; iz < n; iz++)
+                    temp1[i++] = noise[Mod(ix + offset, n) + Mod(iy + offset, n) * n + Mod(iz + offset, n) * n * n];
 
-        for (i = 0; i < n * n; i++)
+        for (i = 0; i < sz; i++)
         {
             noise[i] += temp1[i];
         }
@@ -153,10 +177,13 @@ public class WaveletNoiseRandom : DefaultRandom
         float xWevelet = (float)x / size.x * scale + offset.x;
         float yWevelet = (float)y / size.y * scale + offset.y;
 
-        int index = Math.Clamp(x * size.x + y, 0, noiseTileData.Length - 1);
-        var Wevelet = noiseTileData[index];
+        // Gettings a 2d slice from 3d noise using XY axis as pixel coords
+        // depth is Z axis, changing it will allow configuring slice depth
+        int depth = 0;
+        int index = Math.Clamp(x + y * size.x + depth * size.x * size.y, 0, noiseTileData.Length - 1);
+        var wavelet = noiseTileData[index];
 
-        // Prelin must return [0;1] but sometimes returns negative
-        return Math.Clamp(min + Wevelet * (max - min), min, max);
+
+        return Math.Clamp(min + wavelet * (max - min), min, max);
     }
 }
